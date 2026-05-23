@@ -1,9 +1,15 @@
 import MenuItem from "@/components/MenuItem";
+import { removeAuth } from "@/lib/auth";
 import { router } from "expo-router";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
+  const handleLogout = async () => {
+    await removeAuth();
+    router.replace("/login");
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView className="px-4">
@@ -51,7 +57,10 @@ export default function ProfileScreen() {
         </View>
 
         {/* LOGOUT */}
-        <TouchableOpacity className="mt-6 bg-red-500 py-3 rounded-2xl items-center">
+        <TouchableOpacity
+          onPress={handleLogout}
+          className="mt-6 bg-red-500 py-3 rounded-2xl items-center"
+        >
           <Text className="text-white font-semibold">Logout</Text>
         </TouchableOpacity>
       </ScrollView>
