@@ -2,7 +2,17 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React, { ComponentProps } from "react";
 import { Text, View } from "react-native";
 
-export default function TransactionItem({ item }: { item: any }) {
+interface TransactionItemData {
+  id: number;
+  amount: number;
+  transactionType: "INCOME" | "EXPENSE";
+  description: string;
+  note: string;
+  category: string;
+  createdAt: string;
+}
+
+export default function TransactionItem({ item }: { item: TransactionItemData }) {
   type MaterialIconName = ComponentProps<typeof MaterialIcons>["name"];
 
   const iconMap: Record<
@@ -16,12 +26,29 @@ export default function TransactionItem({ item }: { item: any }) {
     tv: { icon: "tv", bg: "bg-[#2D1515]", color: "#F87171" },
   };
 
-  const isIncome = item.amount > 0;
-  const iconConfig = iconMap[item.icon] || iconMap.cart;
+  const categoryKey = item.category.toLowerCase();
+  const isIncome = item.transactionType === "INCOME";
+  const iconConfig = iconMap[categoryKey] || (isIncome ? iconMap.briefcase : iconMap.cart);
 
   const formattedAmount = isIncome
-    ? `+$${item.amount.toFixed(2)}`
-    : `-$${Math.abs(item.amount).toFixed(2)}`;
+    ? `+${new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 2,
+      }).format(item.amount)}`
+    : `-${new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 2,
+      }).format(item.amount)}`;
+
+  const formattedDate = new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(item.createdAt));
 
   return (
     <View className="flex-row items-center py-3 px-4 bg-[#111111] rounded-2xl mb-2.5 border border-[#1A1A1A]">
@@ -39,9 +66,9 @@ export default function TransactionItem({ item }: { item: any }) {
       {/* Details */}
       <View className="flex-1">
         <Text className="text-white text-sm font-semibold mb-0.5">
-          {item.name}
+          {item.description}
         </Text>
-        <Text className="text-[#6B7280] text-xs">{item.date}</Text>
+        <Text className="text-[#6B7280] text-xs">{formattedDate}</Text>
       </View>
 
       {/* Amount */}
